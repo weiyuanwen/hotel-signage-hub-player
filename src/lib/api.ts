@@ -66,6 +66,7 @@ export type ScreenData = {
     message: string | null;
     locale: string;
   } | null;
+  template: { key: string } | null;
   media: {
     background_url: string | null;
   };
