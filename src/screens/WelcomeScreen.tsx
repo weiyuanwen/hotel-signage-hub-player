@@ -25,7 +25,10 @@ export function WelcomeScreen({ screen, justPaired = false }: Props) {
       setVisible(true);
       return;
     }
-    if (templateKey === shownKey) return;
+    if (templateKey === shownKey) {
+      setVisible(true);
+      return;
+    }
     setVisible(false);
     const id = window.setTimeout(() => {
       setShownKey(templateKey);
@@ -45,9 +48,9 @@ export function WelcomeScreen({ screen, justPaired = false }: Props) {
         className="relative flex flex-1 flex-col transition-opacity duration-[280ms] ease-out"
         style={{ opacity: visible ? 1 : 0 }}
       >
-        {guest && shownKey ? (
+        {guest && (shownKey ?? templateKey) ? (
           <OccupiedWelcome
-            templateKey={shownKey}
+            templateKey={shownKey ?? templateKey!}
             hotel={screen.hotel}
             room={screen.room}
             guest={guest}
