@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import type { ScreenData } from "../lib/api";
-import { OccupiedWelcome } from "../templates/OccupiedWelcome";
-import { VacantWelcome } from "../templates/VacantWelcome";
+import { normalizeLayout } from "../lib/welcomeLayout";
+import { HospitalityWelcome } from "../welcome/HospitalityWelcome";
+import { LayoutWelcome } from "../welcome/LayoutWelcome";
 
 type Props = {
   screen: ScreenData;
@@ -9,56 +10,64 @@ type Props = {
 };
 
 export function WelcomeScreen({ screen, justPaired = false }: Props) {
-  const guest = screen.guest;
-  const templateKey = guest ? (screen.template?.key ?? "dusk") : null;
+  const signature = screenSignature(screen);
   const [visible, setVisible] = useState(true);
-  const [shownKey, setShownKey] = useState(templateKey);
+  const [shown, setShown] = useState(screen);
+  const shownRef = useRef(screen);
 
   useEffect(() => {
-    if (!guest) {
-      setShownKey(null);
-      setVisible(true);
-      return;
-    }
-    if (shownKey === null) {
-      setShownKey(templateKey);
-      setVisible(true);
-      return;
-    }
-    if (templateKey === shownKey) {
+    if (screenSignature(shownRef.current) === signature) {
+      shownRef.current = screen;
+      setShown(screen);
       setVisible(true);
       return;
     }
     setVisible(false);
     const id = window.setTimeout(() => {
-      setShownKey(templateKey);
+      shownRef.current = screen;
+      setShown(screen);
       setVisible(true);
     }, 280);
     return () => window.clearTimeout(id);
-  }, [guest, templateKey, shownKey]);
+  }, [screen, signature]);
+
+  const templateKey = shown.guest ? (shown.template?.key ?? "dusk") : "dusk";
+  const useLook =
+    Boolean(shown.guest) &&
+    shown.template?.mode !== "video" &&
+    shown.media.kind !== "video" &&
+    shown.template?.layout != null;
+  const occupiedLayout = useLook ? normalizeLayout(shown.template?.layout, templateKey) : null;
 
   return (
-    <main className="relative isolate flex min-h-[100dvh] flex-col overflow-hidden">
+    <main className="relative isolate overflow-hidden">
       {justPaired ? (
-        <p className="relative z-10 bg-primary px-10 py-3 text-sm text-bg md:px-20" role="status">
-          Đã ghép với phòng {screen.room.code}. Mọi TV trong phòng này hiện cùng nội dung.
+        <p className="absolute top-0 z-20 w-full bg-primary px-10 py-3 text-sm text-bg" role="status">
+          Đã ghép với phòng {shown.room.code}. Mọi TV trong phòng này hiện cùng nội dung.
         </p>
       ) : null}
       <div
-        className="relative flex flex-1 flex-col transition-opacity duration-[280ms] ease-out"
+        className="transition-opacity duration-[280ms] ease-out"
         style={{ opacity: visible ? 1 : 0 }}
       >
-        {guest && (shownKey ?? templateKey) ? (
-          <OccupiedWelcome
-            templateKey={shownKey ?? templateKey!}
-            hotel={screen.hotel}
-            room={screen.room}
-            guest={guest}
-          />
+        {shown.guest && occupiedLayout ? (
+          <LayoutWelcome screen={shown} layout={occupiedLayout} />
         ) : (
-          <VacantWelcome screen={screen} />
+          <HospitalityWelcome screen={shown} templateKey={templateKey} />
         )}
       </div>
     </main>
   );
+}
+
+function screenSignature(screen: ScreenData): string {
+  return [
+    screen.guest?.display_name ?? "",
+    screen.guest?.message ?? "",
+    screen.guest ? (screen.template?.key ?? "dusk") : "vacant",
+    screen.media.background_url ?? "",
+    JSON.stringify(screen.template?.layout ?? null),
+    screen.template?.mode ?? "",
+    screen.media.kind ?? "",
+  ].join("|");
 }

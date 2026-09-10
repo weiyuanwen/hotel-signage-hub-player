@@ -52,8 +52,10 @@ export type ScreenData = {
   hotel: {
     id: number;
     name: string;
+    timezone?: string;
     default_locale: string;
     logo_url: string | null;
+    wifi?: { ssid: string; password: string | null } | null;
   };
   room: {
     id: number;
@@ -66,8 +68,15 @@ export type ScreenData = {
     message: string | null;
     locale: string;
   } | null;
-  template: { key: string } | null;
+  template: { key: string; mode?: "look" | "video"; layout?: import("./welcomeLayout").WelcomeLayout | null } | null;
   media: {
     background_url: string | null;
+    kind?: "image" | "video" | null;
   };
+  weather?: {
+    key: string;
+    label: string;
+    latitude: number;
+    longitude: number;
+  } | null;
 };

@@ -1,8 +1,27 @@
 @import "@fontsource-variable/geist";
+@import "@fontsource/be-vietnam-pro/400.css";
+@import "@fontsource/be-vietnam-pro/500.css";
+@import "@fontsource/be-vietnam-pro/600.css";
+@import "@fontsource/be-vietnam-pro/vietnamese-400.css";
+@import "@fontsource/be-vietnam-pro/vietnamese-500.css";
+@import "@fontsource/be-vietnam-pro/vietnamese-600.css";
+@import "@fontsource/outfit/400.css";
+@import "@fontsource/outfit/500.css";
+@import "@fontsource/outfit/600.css";
+@import "@fontsource/cormorant-garamond/500.css";
+@import "@fontsource/cormorant-garamond/600.css";
+@import "@fontsource/cormorant-garamond/700.css";
+@import "@fontsource/cormorant-garamond/vietnamese-500.css";
+@import "@fontsource/cormorant-garamond/vietnamese-600.css";
+@import "@fontsource/cormorant-garamond/vietnamese-700.css";
 @import "tailwindcss";
 
 @theme {
   --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-geist-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-be-vietnam: "Be Vietnam Pro", ui-sans-serif, sans-serif;
+  --font-outfit: Outfit, ui-sans-serif, sans-serif;
+  --font-cormorant: "Cormorant Garamond", ui-serif, serif;
   --color-bg: oklch(0.1 0 0);
   --color-surface: oklch(0.16 0 0);
   --color-ink: oklch(0.94 0.012 110);
@@ -23,6 +42,55 @@ body,
 
 body {
   margin: 0;
+}
+
+html[data-tv="1"],
+html[data-tv="1"] body,
+html[data-tv="1"] #root {
+  height: 100dvh;
+  overflow: hidden;
+  cursor: none;
+  user-select: none;
+}
+
+.welcome-glass {
+  border-radius: 18px;
+  border: 1px solid rgb(255 255 255 / 0.22);
+  background:
+    linear-gradient(180deg, rgb(255 255 255 / 0.1), rgb(255 255 255 / 0.03)),
+    rgb(2 6 12 / 0.42);
+  backdrop-filter: blur(18px) saturate(140%);
+  -webkit-backdrop-filter: blur(18px) saturate(140%);
+  box-shadow:
+    inset 0 1px 0 rgb(255 255 255 / 0.28),
+    0 24px 60px rgb(0 0 0 / 0.28);
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .welcome-glass {
+    background: rgb(12 16 22 / 0.92);
+    backdrop-filter: none;
+    -webkit-backdrop-filter: none;
+  }
+}
+
+.welcome-copy {
+  animation: welcome-fade 420ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.welcome-stage {
+  container-type: size;
+}
+
+@keyframes welcome-fade {
+  from {
+    opacity: 0;
+    transform: translateY(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {

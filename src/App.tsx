@@ -15,18 +15,34 @@ import {
   getToken,
   persistPairing,
   persistPendingPin,
+  persistMeta,
   type DeviceMeta,
 } from "./lib/session";
 import { PairingScreen } from "./screens/PairingScreen";
 import { WelcomeScreen } from "./screens/WelcomeScreen";
+import { readScreenCache, writeScreenCache } from "./lib/screenCache";
+import { previewFromQuery } from "./welcome/preview";
 
 type PairingState = {
   code: string;
   expiresAt: string;
 };
 
+function pairTokenFromLocation(): string | null {
+  const token = new URLSearchParams(window.location.search).get("pair")?.trim();
+  return token || null;
+}
+
+function clearPairQuery() {
+  const url = new URL(window.location.href);
+  if (!url.searchParams.has("pair")) return;
+  url.searchParams.delete("pair");
+  window.history.replaceState({}, "", url.pathname + url.search + url.hash);
+}
+
 export function App() {
   const [pairing, setPairing] = useState<PairingState | null>(null);
+  const [pairingMode, setPairingMode] = useState<"pin" | "link">("pin");
   const [screen, setScreen] = useState<ScreenData | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [paired, setPaired] = useState(() => Boolean(getToken()));
@@ -46,8 +62,14 @@ export function App() {
       const res = await deviceFetch<ScreenData>("/device/screen", { headers }, token);
       if (res.status === 304) return;
       setScreen(res.data);
+      writeScreenCache(res.data);
       setError(null);
       if (res.etag) revisionRef.current = res.etag;
+      if (metaRef.current) {
+        const next = { ...metaRef.current, hotelId: res.data.hotel.id, roomId: res.data.room.id };
+        metaRef.current = next;
+        persistMeta(next);
+      }
     } catch (err) {
       if (err instanceof ApiError && (err.status === 401 || err.status === 403)) {
         clearSession();
@@ -58,9 +80,33 @@ export function App() {
         void requestPin();
         return;
       }
+      const cached = readScreenCache();
+      if (cached) {
+        setScreen(cached);
+      }
       setError("Không tải được nội dung. Đang giữ màn hình trước.");
     }
   }, []);
+
+  const applyClaim = useCallback(
+    async (claimed: PairingClaimed) => {
+      if (!claimed.token) return;
+      const meta = {
+        deviceId: claimed.device_id,
+        hotelId: claimed.hotel_id,
+        roomId: claimed.room_id,
+      };
+      persistPairing(claimed.token, meta);
+      tokenRef.current = claimed.token;
+      metaRef.current = meta;
+      setPaired(true);
+      setJustPaired(true);
+      setPairing(null);
+      setPairingMode("pin");
+      await loadScreen();
+    },
+    [loadScreen],
+  );
 
   const requestPin = useCallback(async () => {
     const existing = getPendingPin();
@@ -91,9 +137,37 @@ export function App() {
     }
   }, []);
 
+  const consumePairLink = useCallback(
+    async (token: string) => {
+      setPairingMode("link");
+      setError(null);
+      try {
+        const res = await deviceFetch<PairingClaimed>(`/device/pairing-links/${token}`, {
+          method: "POST",
+        });
+        clearPairQuery();
+        await applyClaim(res.data);
+      } catch {
+        clearPairQuery();
+        setPairingMode("pin");
+        setError("Link ghép không còn hiệu lực. Đang xin mã PIN.");
+        await requestPin();
+      }
+    },
+    [applyClaim, requestPin],
+  );
+
   useEffect(() => {
+    if (previewFromQuery()) return;
     if (tokenRef.current) {
+      const cached = readScreenCache();
+      if (cached) setScreen(cached);
       void loadScreen();
+      return;
+    }
+    const pair = pairTokenFromLocation();
+    if (pair) {
+      void consumePairLink(pair);
       return;
     }
     void requestPin();
@@ -114,20 +188,7 @@ export function App() {
           `/device/pairing-codes/${pairing.code}`,
         );
         if (res.status === 202 || res.data.status !== "paired") return;
-        const claimed = res.data;
-        if (!claimed.token) return;
-        const meta = {
-          deviceId: claimed.device_id,
-          hotelId: claimed.hotel_id,
-          roomId: claimed.room_id,
-        };
-        persistPairing(claimed.token, meta);
-        tokenRef.current = claimed.token;
-        metaRef.current = meta;
-        setPaired(true);
-        setJustPaired(true);
-        setPairing(null);
-        await loadScreen();
+        await applyClaim(res.data);
       } catch (err) {
         if (err instanceof ApiError && err.status === 422) {
           clearPendingPin();
@@ -137,7 +198,7 @@ export function App() {
     }, 2000);
 
     return () => window.clearInterval(poll);
-  }, [pairing, loadScreen, requestPin]);
+  }, [pairing, loadScreen, requestPin, applyClaim]);
 
   useEffect(() => {
     const token = tokenRef.current;
@@ -160,11 +221,17 @@ export function App() {
     echoRef.current = echo;
     echo
       .private(`room.${meta.hotelId}.${meta.roomId}`)
-      .listen(".content.updated", (payload: ScreenData) => {
-        setScreen(payload);
-        revisionRef.current = String(payload.room.content_revision);
+      .listen(".content.updated", (payload: { hotel_id?: number; room_id?: number }) => {
+        if (payload.hotel_id != null && payload.hotel_id !== meta.hotelId) return;
+        if (payload.room_id != null && payload.room_id !== meta.roomId) return;
+        revisionRef.current = null;
+        void loadScreen();
       });
     echo.private(`device.${meta.deviceId}`).listen(".device.command", (payload: { command: string }) => {
+      if (payload.command === "reload") {
+        void loadScreen();
+        return;
+      }
       if (payload.command === "unpair") {
         echo.disconnect();
         clearSession();
@@ -181,13 +248,16 @@ export function App() {
       echo.disconnect();
       echoRef.current = null;
     };
-  }, [screen?.room.id, requestPin]);
+  }, [screen?.room.id, requestPin, loadScreen]);
 
   useEffect(() => {
     if (!justPaired) return;
     const hide = window.setTimeout(() => setJustPaired(false), 6000);
     return () => window.clearTimeout(hide);
   }, [justPaired]);
+
+  const preview = previewFromQuery();
+  if (preview) return <WelcomeScreen screen={preview} />;
 
   if (!paired || !screen) {
     if (paired) {
@@ -197,7 +267,14 @@ export function App() {
         </main>
       );
     }
-    return <PairingScreen code={pairing?.code ?? null} expiresAt={pairing?.expiresAt ?? null} error={error} />;
+    return (
+      <PairingScreen
+        mode={pairingMode}
+        code={pairing?.code ?? null}
+        expiresAt={pairing?.expiresAt ?? null}
+        error={error}
+      />
+    );
   }
 
   return <WelcomeScreen screen={screen} justPaired={justPaired} />;

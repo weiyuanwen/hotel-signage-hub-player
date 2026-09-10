@@ -29,8 +29,12 @@ export function getMeta(): DeviceMeta | null {
 
 export function persistPairing(token: string, meta: DeviceMeta): void {
   localStorage.setItem(TOKEN_KEY, token);
-  localStorage.setItem(META_KEY, JSON.stringify(meta));
+  persistMeta(meta);
   clearPendingPin();
+}
+
+export function persistMeta(meta: DeviceMeta): void {
+  localStorage.setItem(META_KEY, JSON.stringify(meta));
 }
 
 export function getPendingPin(): PendingPin | null {
@@ -60,4 +64,5 @@ export function clearSession(): void {
   localStorage.removeItem(TOKEN_KEY);
   localStorage.removeItem(META_KEY);
   clearPendingPin();
+  localStorage.removeItem("hsh.player.screen");
 }

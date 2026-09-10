@@ -1,19 +1,24 @@
-import { DuskWelcome } from "./DuskWelcome";
-import { GardenWelcome } from "./GardenWelcome";
-import { HarborWelcome } from "./HarborWelcome";
-import { LinenWelcome } from "./LinenWelcome";
-import { StoneWelcome } from "./StoneWelcome";
 import type { OccupiedProps } from "./types";
+import { HospitalityWelcome } from "../welcome/HospitalityWelcome";
+import type { ScreenData } from "../lib/api";
 
-const SCENES = {
-  dusk: DuskWelcome,
-  linen: LinenWelcome,
-  harbor: HarborWelcome,
-  garden: GardenWelcome,
-  stone: StoneWelcome,
-} as const;
-
-export function OccupiedWelcome({ templateKey, ...props }: OccupiedProps & { templateKey: string }) {
-  const Scene = SCENES[templateKey as keyof typeof SCENES] ?? DuskWelcome;
-  return <Scene {...props} />;
+export function OccupiedWelcome({
+  templateKey,
+  hotel,
+  room,
+  guest,
+  media,
+}: OccupiedProps & { templateKey: string; media: ScreenData["media"] }) {
+  return (
+    <HospitalityWelcome
+      templateKey={templateKey}
+      screen={{
+        hotel,
+        room,
+        guest,
+        template: { key: templateKey },
+        media,
+      }}
+    />
+  );
 }
