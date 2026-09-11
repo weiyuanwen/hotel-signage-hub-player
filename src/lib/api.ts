@@ -1,5 +1,8 @@
 export function apiBase(): string {
-  return import.meta.env.VITE_API_URL ?? "http://hubback.test/api";
+  if (import.meta.env.PROD) {
+    return "/api";
+  }
+  return (import.meta.env.VITE_API_URL?.trim() || "http://hubback.test/api").replace(/\/$/, "");
 }
 
 export class ApiError extends Error {
