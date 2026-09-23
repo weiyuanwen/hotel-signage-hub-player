@@ -10,6 +10,8 @@ export type WeatherPlace = {
   label: string;
   latitude: number;
   longitude: number;
+  celsius?: number;
+  code?: number;
 };
 
 const THIRTY_MIN = 30 * 60 * 1000;
@@ -22,13 +24,24 @@ type CacheShape = {
 };
 
 export function useWeather(hotelId: number, place: WeatherPlace | null): WeatherNow | null {
-  const [weather, setWeather] = useState<WeatherNow | null>(() =>
-    place ? (readCache(hotelId, place.key)?.now ?? null) : null,
-  );
+  const [weather, setWeather] = useState<WeatherNow | null>(() => {
+    if (!place) return null;
+    if (typeof place.celsius === "number" && typeof place.code === "number") {
+      return { celsius: place.celsius, code: place.code };
+    }
+    return readCache(hotelId, place.key)?.now ?? null;
+  });
 
   useEffect(() => {
     if (!place) {
       setWeather(null);
+      return;
+    }
+
+    if (typeof place.celsius === "number" && typeof place.code === "number") {
+      const next = { celsius: place.celsius, code: place.code };
+      setWeather(next);
+      writeCache(hotelId, place.key, { at: Date.now(), ...next, key: place.key });
       return;
     }
 
@@ -66,7 +79,7 @@ export function useWeather(hotelId: number, place: WeatherPlace | null): Weather
       cancelled = true;
       window.clearInterval(id);
     };
-  }, [hotelId, place?.key, place?.latitude, place?.longitude]);
+  }, [hotelId, place?.key, place?.latitude, place?.longitude, place?.celsius, place?.code]);
 
   return weather;
 }

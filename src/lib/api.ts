@@ -81,5 +81,7 @@ export type ScreenData = {
     label: string;
     latitude: number;
     longitude: number;
+    celsius?: number;
+    code?: number;
   } | null;
 };
