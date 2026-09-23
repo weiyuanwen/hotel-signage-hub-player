@@ -6,10 +6,10 @@ import { LanguageToggle } from "./LanguageToggle";
 import { ClockWidget, WeatherWidget } from "./Widgets";
 import { useLocaleCycle } from "./useLocaleCycle";
 import { useWeather } from "./useWeather";
+import { R2_PUBLIC } from "../lib/r2Public";
 import { embedSrc, parseVideoUrl } from "./videoSource";
 
-const FALLBACK_GROUNDS =
-  "https://images.unsplash.com/photo-1542314831-068cd1dbfeeb?auto=format&fit=crop&w=1920&q=80";
+const FALLBACK_GROUNDS = `${R2_PUBLIC}/landing/gallery/garden.jpg`;
 
 const OVERLAY: Record<string, string> = {
   dusk: "rgb(18 10 4 / 0.32)",
