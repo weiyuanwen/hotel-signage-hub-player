@@ -30,7 +30,7 @@ export function PairingScreen({ code, expiresAt, error, mode = "pin" }: Props) {
         )}
         {error ? <p className="mt-4 text-sm text-danger">{error}</p> : null}
       </div>
-      <p className="text-sm text-muted">Hotel Signage Hub</p>
+      <img src="/logo.png" alt="SignageHub" className="mx-auto h-6 w-auto" />
     </main>
   );
 }

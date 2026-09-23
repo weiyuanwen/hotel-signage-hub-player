@@ -1,0 +1,22 @@
+name: hotel-hub-player
+
+services:
+  player:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+      args:
+        VITE_REVERB_APP_KEY: ${VITE_REVERB_APP_KEY}
+        VITE_REVERB_HOST: ${VITE_REVERB_HOST:-ws.signagehub.online}
+        VITE_REVERB_PORT: ${VITE_REVERB_PORT:-443}
+        VITE_REVERB_SCHEME: ${VITE_REVERB_SCHEME:-https}
+    ports:
+      - "127.0.0.1:9083:80"
+    networks:
+      - hotel-hub
+    restart: unless-stopped
+
+networks:
+  hotel-hub:
+    name: hotel-hub_default
+    external: true

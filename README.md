@@ -12,3 +12,5 @@ npm run dev
 Mở http://localhost:5173. API: http://hubback.test/api. Reverb: localhost:8080.
 
 Luồng: TV hiện PIN 6 ký tự → CMS Phòng → Ghép TV → màn chào / branding phòng trống.
+
+Production: `https://app.signagehub.online`. Push `main` → runner trên VPS pull và rebuild `deploy/`.

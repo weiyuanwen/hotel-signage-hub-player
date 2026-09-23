@@ -204,13 +204,26 @@ export function App() {
     const token = tokenRef.current;
     if (!token || !screen) return;
 
-    const beat = window.setInterval(() => {
-      void deviceFetch("/device/heartbeat", { method: "POST" }, token).catch(() => undefined);
-    }, 30_000);
-    void deviceFetch("/device/heartbeat", { method: "POST" }, token).catch(() => undefined);
+    async function beat() {
+      try {
+        const res = await deviceFetch<{ content_revision?: number }>("/device/heartbeat", { method: "POST" }, token);
+        const revision = res.data.content_revision;
+        if (revision != null && String(revision) !== revisionRef.current) {
+          revisionRef.current = null;
+          await loadScreen();
+        }
+      } catch {
+        /* keep last frame */
+      }
+    }
 
-    return () => window.clearInterval(beat);
-  }, [screen]);
+    const id = window.setInterval(() => {
+      void beat();
+    }, 3000);
+    void beat();
+
+    return () => window.clearInterval(id);
+  }, [screen, loadScreen]);
 
   useEffect(() => {
     const token = tokenRef.current;

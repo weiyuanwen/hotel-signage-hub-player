@@ -17,7 +17,13 @@ export type Headline = {
   name: string;
 };
 
-export function headline(locale: UiLocale, name: string): Headline {
+export function headline(locale: UiLocale, name: string, variant: "banner" | "letter" = "banner"): Headline {
+  if (variant === "letter") {
+    return {
+      greeting: locale === "vi" ? "Chào mừng," : "Welcome,",
+      name: name.trim(),
+    };
+  }
   return {
     greeting: locale === "vi" ? "CHÀO MỪNG" : "WELCOME",
     name: name.trim().toLocaleUpperCase(locale === "vi" ? "vi-VN" : "en-GB"),

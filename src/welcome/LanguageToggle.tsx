@@ -5,28 +5,62 @@ type Props = {
   locale: UiLocale;
   onPick: (locale: UiLocale) => void;
   className?: string;
+  variant?: "flags" | "pills";
 };
 
-export function LanguageToggle({ locale, onPick, className = "mt-8 flex justify-center gap-10" }: Props) {
+export function LanguageToggle({
+  locale,
+  onPick,
+  className = "mt-8 flex justify-center gap-10",
+  variant = "flags",
+}: Props) {
   return (
     <div className={className} role="group" aria-label="Language">
-      <LangButton
-        id="lang-vi"
-        label="Tiếng Việt"
-        active={locale === "vi"}
-        onPick={() => onPick("vi")}
-      >
-        <FlagVn />
-      </LangButton>
-      <LangButton
-        id="lang-en"
-        label="English"
-        active={locale === "en"}
-        onPick={() => onPick("en")}
-      >
-        <FlagGb />
-      </LangButton>
+      {variant === "pills" ? (
+        <>
+          <PillButton id="lang-vi" label="Tiếng Việt" active={locale === "vi"} onPick={() => onPick("vi")} />
+          <PillButton id="lang-en" label="English" active={locale === "en"} onPick={() => onPick("en")} />
+        </>
+      ) : (
+        <>
+          <LangButton id="lang-vi" label="Tiếng Việt" active={locale === "vi"} onPick={() => onPick("vi")}>
+            <FlagVn />
+          </LangButton>
+          <LangButton id="lang-en" label="English" active={locale === "en"} onPick={() => onPick("en")}>
+            <FlagGb />
+          </LangButton>
+        </>
+      )}
     </div>
+  );
+}
+
+function PillButton({
+  id,
+  label,
+  active,
+  onPick,
+}: {
+  id: string;
+  label: string;
+  active: boolean;
+  onPick: () => void;
+}) {
+  return (
+    <button
+      id={id}
+      type="button"
+      aria-label={label}
+      aria-pressed={active}
+      onClick={onPick}
+      className={`rounded-full border px-[1.35cqw] py-[0.42cqw] text-[1.05cqw] tracking-[0.04em] outline-none transition-colors focus-visible:ring-2 focus-visible:ring-[#d4b07a]/80 ${
+        active
+          ? "border-[#d4b07a] bg-[#d4b07a] text-[#1c1814]"
+          : "border-[#c4b8a6]/40 bg-transparent text-[#e8dfd0]"
+      }`}
+    >
+      {label}
+    </button>
   );
 }
 

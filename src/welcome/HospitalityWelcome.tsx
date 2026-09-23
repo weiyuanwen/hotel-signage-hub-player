@@ -17,6 +17,7 @@ const OVERLAY: Record<string, string> = {
   harbor: "rgb(4 12 22 / 0.34)",
   garden: "rgb(6 14 10 / 0.32)",
   stone: "rgb(16 12 8 / 0.3)",
+  vista: "rgb(22 18 14 / 0.22)",
 };
 
 type Props = {

@@ -1,4 +1,5 @@
 import type { ScreenData } from "../lib/api";
+import { defaultLayout, resolveBackgroundUrl } from "../lib/welcomeLayout";
 
 const hotel = {
   id: 1,
@@ -50,21 +51,27 @@ export function previewFromQuery(): ScreenData | null {
       },
     };
   }
-    return {
-      hotel,
-      room,
-      guest: {
-        display_name: "Nguyen Van Duy",
-        message: "Cảm ơn quý khách đã chọn Saigon Pearl. Chúc quý khách có những trải nghiệm tuyệt vời.",
-        locale: "vi",
-      },
-      template: { key: mode === "linen" || mode === "harbor" || mode === "garden" || mode === "stone" ? mode : "dusk" },
-      media,
-      weather: {
-        key: "ho-chi-minh",
-        label: "TP. Hồ Chí Minh",
-        latitude: 10.7769,
-        longitude: 106.7009,
-      },
-    };
+
+  const key =
+    mode === "linen" || mode === "harbor" || mode === "garden" || mode === "stone" || mode === "vista" ? mode : "dusk";
+  const layout = defaultLayout(key);
+  return {
+    hotel,
+    room,
+    guest: {
+      display_name: "Nguyen Van Duy",
+      message: "Cảm ơn quý khách đã chọn Saigon Pearl. Chúc quý khách có những trải nghiệm tuyệt vời.",
+      locale: "vi",
+    },
+    template: { key, mode: "look", layout },
+    media: video
+      ? media
+      : { background_url: resolveBackgroundUrl(layout), kind: "image" as const },
+    weather: {
+      key: "ho-chi-minh",
+      label: "TP. Hồ Chí Minh",
+      latitude: 10.7769,
+      longitude: 106.7009,
+    },
+  };
 }
