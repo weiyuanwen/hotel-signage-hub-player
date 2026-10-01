@@ -66,6 +66,13 @@ html[data-tv="1"] #root {
     0 24px 60px rgb(0 0 0 / 0.28);
 }
 
+/* logo.svg paints its wordmark in #0F172A, which is nearly invisible against the
+   near-black page. Recolour the whole mark for dark surfaces: the icon keeps
+   its own colours, only the dark fills are lifted. */
+.player-logo {
+  filter: brightness(0) invert(1);
+}
+
 @media (prefers-reduced-transparency: reduce) {
   .welcome-glass {
     background: rgb(12 16 22 / 0.92);

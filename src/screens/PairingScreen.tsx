@@ -40,7 +40,7 @@ export function PairingScreen({ code, expiresAt, error, mode = "pin" }: Props) {
         <p className="text-sm text-muted">
           Địa chỉ player: <span className="font-mono text-ink">{origin}</span>
         </p>
-        <img src="/logo.svg" alt="SignageHub" className="h-6 w-auto" />
+        <img src="/logo.svg" alt="SignageHub" className="player-logo h-7 w-auto" />
       </div>
     </main>
   );
