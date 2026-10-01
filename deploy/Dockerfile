@@ -16,4 +16,9 @@ RUN npm run build
 FROM nginx:1.27-alpine
 COPY deploy/nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder /app/dist /usr/share/nginx/html
+# nginx workers run as the unprivileged "nginx" user, so anything left at 0600
+# by the build context comes out unreadable and every asset 403s while the page
+# itself still serves (index.html happens to keep 0644). Open it up here rather
+# than relying on the checkout permissions the build happened to inherit.
+RUN chmod -R a+rX /usr/share/nginx/html
 EXPOSE 80

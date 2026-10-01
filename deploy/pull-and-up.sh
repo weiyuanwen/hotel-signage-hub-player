@@ -4,6 +4,7 @@ set -euo pipefail
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 LOCK="${SIGNAGEHUB_DEPLOY_LOCK:-/tmp/signagehub-deploy.lock}"
 BACKEND_ENV="${HOME}/hotel-signage-hub-backend/deploy/.env"
+umask 022
 
 exec 9>"$LOCK"
 flock 9
@@ -12,6 +13,9 @@ cd "$ROOT"
 git fetch origin main
 git checkout -q main
 git reset --hard origin/main
+# Without this the checkout can land at 0600 and every static asset 403s from
+# the nginx container, which serves the page but none of its images.
+chmod -R a+rX .
 
 if [ ! -f deploy/.env ]; then
   key=""
