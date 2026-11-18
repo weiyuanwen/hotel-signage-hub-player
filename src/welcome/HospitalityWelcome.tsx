@@ -3,9 +3,11 @@ import { useEffect } from "react";
 import type { ScreenData } from "../lib/api";
 import { headline, thanks, vacantBody, vacantTitle, wifiPasswordLabel, type UiLocale } from "./copy";
 import { LanguageToggle } from "./LanguageToggle";
+import { QrCode } from "./QrCode";
 import { ClockWidget, WeatherWidget } from "./Widgets";
 import { useLocaleCycle } from "./useLocaleCycle";
 import { useWeather } from "./useWeather";
+import { wifiQrPayload } from "../lib/qr";
 import { R2_PUBLIC } from "../lib/r2Public";
 import { embedSrc, parseVideoUrl } from "./videoSource";
 
@@ -107,19 +109,22 @@ function WifiCorner({
   locale: UiLocale;
 }) {
   if (!wifi?.ssid) return <span />;
+  const qrPayload = wifiQrPayload(wifi.ssid, wifi.password);
 
   return (
-    <div className="flex min-w-0 items-start gap-2.5 text-left text-white" aria-label={`Wi-Fi ${wifi.ssid}`}>
-      <WifiHigh
-        size={22}
-        weight="regular"
-        className="mt-0.5 size-[clamp(1.15rem,1.8vw,1.5rem)] shrink-0 text-white/90"
-        aria-hidden
+    <div className="flex min-w-0 items-center gap-3 text-left text-white" aria-label={`Wi-Fi ${wifi.ssid}`}>
+      <QrCode
+        value={qrPayload}
+        className="size-[clamp(2.5rem,4.2vw,3.6rem)] rounded-lg"
+        ariaLabel={`QR Wi-Fi ${wifi.ssid}`}
       />
       <div className="min-w-0">
-        <p className="truncate text-[clamp(0.85rem,1.4vw,1.2rem)] font-medium tracking-wide">{wifi.ssid}</p>
+        <p className="flex items-center gap-1.5 truncate text-[clamp(0.85rem,1.4vw,1.2rem)] font-medium tracking-wide">
+          <WifiHigh size={18} weight="regular" className="shrink-0 text-white/90" aria-hidden />
+          <span className="truncate">{wifi.ssid}</span>
+        </p>
         {wifi.password ? (
-          <p className="mt-0.5 text-[clamp(0.75rem,1.15vw,0.95rem)] leading-snug">
+          <p className="mt-0.5 truncate text-[clamp(0.75rem,1.15vw,0.95rem)] leading-snug">
             <span className="text-white/55">{wifiPasswordLabel(locale)}</span>
             <span className="ml-2 tabular-nums tracking-[0.06em] text-white/90">{wifi.password}</span>
           </p>

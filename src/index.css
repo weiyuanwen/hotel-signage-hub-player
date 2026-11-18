@@ -17,10 +17,10 @@
 @import "tailwindcss";
 
 @theme {
-  --font-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
-  --font-geist-sans: "Geist Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Geist Variable", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
+  --font-geist-sans: "Geist Variable", "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif;
   --font-be-vietnam: "Be Vietnam Pro", ui-sans-serif, sans-serif;
-  --font-outfit: Outfit, ui-sans-serif, sans-serif;
+  --font-outfit: Outfit, "Be Vietnam Pro", ui-sans-serif, sans-serif;
   --font-cormorant: "Cormorant Garamond", ui-serif, serif;
   --color-bg: oklch(0.1 0 0);
   --color-surface: oklch(0.16 0 0);

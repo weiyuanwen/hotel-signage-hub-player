@@ -114,9 +114,9 @@ export const TONE_OVERLAY: Record<TemplateTone, string> = {
 };
 
 export const FONT_FAMILY: Record<TemplateFont, string> = {
-  geist: 'var(--font-geist-sans), "Geist Variable", Geist, ui-sans-serif, system-ui, sans-serif',
+  geist: 'var(--font-geist-sans), "Geist Variable", Geist, var(--font-be-vietnam), "Be Vietnam Pro", ui-sans-serif, system-ui, sans-serif',
   "be-vietnam": 'var(--font-be-vietnam), "Be Vietnam Pro", ui-sans-serif, sans-serif',
-  outfit: 'var(--font-outfit), Outfit, var(--font-be-vietnam), ui-sans-serif, sans-serif',
+  outfit: 'var(--font-outfit), Outfit, var(--font-be-vietnam), "Be Vietnam Pro", ui-sans-serif, sans-serif',
   cormorant: 'var(--font-cormorant), "Cormorant Garamond", ui-serif, serif',
 };
 

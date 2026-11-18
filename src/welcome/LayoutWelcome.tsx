@@ -12,10 +12,12 @@ import {
 } from "../lib/welcomeLayout";
 import { headline, wifiPasswordLabel, type UiLocale } from "./copy";
 import { LanguageToggle } from "./LanguageToggle";
+import { QrCode } from "./QrCode";
 import { ClockWidget, WeatherWidget } from "./Widgets";
 import { useLocaleCycle } from "./useLocaleCycle";
 import { useWeather } from "./useWeather";
-import { WifiHigh } from "@phosphor-icons/react";
+import { wifiQrPayload } from "../lib/qr";
+import { Sparkle, WifiHigh } from "@phosphor-icons/react";
 
 type Props = {
   screen: ScreenData;
@@ -127,9 +129,12 @@ export function LayoutWelcome({ screen, layout }: Props) {
                 style={{ height: cqh(layout.sizes.logo), maxWidth: cqw(layout.sizes.logo * 2.55) }}
               />
             ) : (
-              <span
-                className="block rounded-full bg-white/20"
+              <Sparkle
+                size={28}
+                weight="fill"
+                className="text-white"
                 style={{ width: cqh(layout.sizes.logo * 0.36), height: cqh(layout.sizes.logo * 0.36) }}
+                aria-hidden
               />
             )}
           </Placed>
@@ -204,11 +209,15 @@ export function LayoutWelcome({ screen, layout }: Props) {
 
         {split ? (
           <div className="absolute bottom-[4.6%] left-0 flex justify-center" style={{ width: `${SPLIT_PANEL.width}%` }}>
-            <LanguageToggle locale={locale} onPick={pick} variant="pills" className="flex justify-center gap-[0.7cqw]" />
+            <LanguageToggle locale={locale} onPick={pick} tone="warm" className="flex justify-center gap-[0.7cqw]" />
+          </div>
+        ) : layout.slots.room.y > 78 && layout.slots.room.x > 34 && layout.slots.room.x < 68 ? (
+          <div className="absolute right-[4.2%] bottom-[4.2%]">
+            <LanguageToggle locale={locale} onPick={pick} className="flex justify-end gap-2.5" />
           </div>
         ) : (
           <div className="absolute bottom-[4.2%] left-1/2 -translate-x-1/2">
-            <LanguageToggle locale={locale} onPick={pick} className="flex justify-center gap-10" />
+            <LanguageToggle locale={locale} onPick={pick} className="flex justify-center gap-2.5" />
           </div>
         )}
       </div>
@@ -248,23 +257,29 @@ function WifiCorner({
   left: number;
 }) {
   if (!wifi?.ssid) return null;
+  const qrPayload = wifiQrPayload(wifi.ssid, wifi.password);
   return (
     <div
-      className="absolute bottom-[4.2%] flex max-w-[42%] items-start gap-[0.7cqw] text-white drop-shadow-[0_1px_8px_rgb(0_0_0/0.45)]"
+      className="absolute bottom-[4.2%] flex max-w-[35%] items-center gap-[0.85cqw] text-white drop-shadow-[0_1px_8px_rgb(0_0_0/0.45)]"
       style={{ left: `${left}%` }}
     >
-      <WifiHigh
-        size={22}
-        weight="regular"
-        className="mt-[0.2cqw] shrink-0 text-white/90"
-        style={{ width: cqw(ssidSize * 1.38), height: cqw(ssidSize * 1.38) }}
+      <QrCode
+        value={qrPayload}
+        className="size-[4.2cqw] min-h-9 min-w-9 rounded-[0.45cqw]"
+        ariaLabel={`QR Wi-Fi ${wifi.ssid}`}
       />
       <div className="min-w-0">
-        <p className="truncate font-medium tracking-wide" style={{ fontSize: cqw(ssidSize) }}>
-          {wifi.ssid}
+        <p className="flex items-center gap-[0.45cqw] truncate font-medium tracking-wide" style={{ fontSize: cqw(ssidSize) }}>
+          <WifiHigh
+            size={20}
+            weight="regular"
+            className="shrink-0 text-white/90"
+            style={{ width: cqw(ssidSize * 1.15), height: cqw(ssidSize * 1.15) }}
+          />
+          <span className="truncate">{wifi.ssid}</span>
         </p>
         {wifi.password ? (
-          <p className="mt-[0.2cqw] text-white/80" style={{ fontSize: cqw(passwordSize) }}>
+          <p className="mt-[0.18cqw] truncate text-white/80" style={{ fontSize: cqw(passwordSize) }}>
             <span className="text-white/55">{wifiPasswordLabel(locale)}</span>
             <span className="ml-[0.5cqw] tabular-nums tracking-[0.06em]">{wifi.password}</span>
           </p>

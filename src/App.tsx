@@ -275,8 +275,9 @@ export function App() {
   if (!paired || !screen) {
     if (paired) {
       return (
-        <main className="flex min-h-[100dvh] items-center px-10">
-          <p className="text-xl text-muted">{error ?? "Đang tải nội dung phòng."}</p>
+        <main className="flex min-h-[100dvh] flex-col items-center justify-center gap-5 px-10 text-center">
+          <img src="/logo.svg" alt="SignageHub" className="player-logo h-8 w-auto opacity-85" />
+          <p className="text-lg text-muted">{error ?? "Đang tải nội dung phòng…"}</p>
         </main>
       );
     }
@@ -290,5 +291,5 @@ export function App() {
     );
   }
 
-  return <WelcomeScreen screen={screen} justPaired={justPaired} />;
+  return <WelcomeScreen screen={screen} justPaired={justPaired} offline={Boolean(error)} />;
 }

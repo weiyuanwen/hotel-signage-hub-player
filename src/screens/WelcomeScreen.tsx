@@ -7,9 +7,10 @@ import { LayoutWelcome } from "../welcome/LayoutWelcome";
 type Props = {
   screen: ScreenData;
   justPaired?: boolean;
+  offline?: boolean;
 };
 
-export function WelcomeScreen({ screen, justPaired = false }: Props) {
+export function WelcomeScreen({ screen, justPaired = false, offline = false }: Props) {
   const signature = screenSignature(screen);
   const [visible, setVisible] = useState(true);
   const [shown, setShown] = useState(screen);
@@ -45,6 +46,13 @@ export function WelcomeScreen({ screen, justPaired = false }: Props) {
         <p className="absolute top-0 z-20 w-full bg-primary px-10 py-3 text-sm text-bg" role="status">
           Đã ghép với phòng {shown.room.code}. Mọi TV trong phòng này hiện cùng nội dung.
         </p>
+      ) : null}
+      {offline ? (
+        <span
+          title="Đang giữ nội dung ngoại tuyến"
+          aria-label="Ngoại tuyến"
+          className="pointer-events-none absolute right-3 bottom-3 z-20 size-2 rounded-full bg-amber-400/70"
+        />
       ) : null}
       <div
         className="transition-opacity duration-[280ms] ease-out"
